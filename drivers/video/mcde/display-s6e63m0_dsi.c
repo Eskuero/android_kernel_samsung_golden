@@ -42,7 +42,10 @@
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif
-#define VID_MODE_REFRESH_RATE 60
+
+// TODO: We must investigate the real origin of the screen tearing issue,
+// this is just a dirty hack I don't like anywhere
+#define VID_MODE_REFRESH_RATE 65
 
 //#undef dev_dbg
 //#define dev_dbg dev_info
