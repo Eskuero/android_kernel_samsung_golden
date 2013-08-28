@@ -367,8 +367,8 @@ uint dhd_download_fw_on_driverload = TRUE;
  */
 
 /* TODO: Remove hack, we must to be allowed to set parameters for module from BoardConfig define */
-char firmware_path[MOD_PARAM_PATHLEN]="/system/etc/wifi/bcmdhd_sta.bin_b2";
-char nvram_path[MOD_PARAM_PATHLEN]="/system/etc/wifi/nvram_net.txt_GPIO4";
+char firmware_path[MOD_PARAM_PATHLEN]="/system/etc/wifi/bcmdhd_sta.bin";
+char nvram_path[MOD_PARAM_PATHLEN]="/system/etc/wifi/nvram_net.txt";
 
 /* information string to keep firmware, chio, cheip version info visiable from log */
 char info_string[MOD_PARAM_INFOLEN];
