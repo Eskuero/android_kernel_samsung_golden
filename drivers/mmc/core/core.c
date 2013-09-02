@@ -2451,8 +2451,7 @@ int mmc_suspend_host(struct mmc_host *host)
 			mmc_release_host(host);
 			host->pm_flags = 0;
 			err = 0;
-		} else if (mmc_card_mmc(host->card) ||
-			   mmc_card_sd(host->card)) {
+		} else if (mmc_card_sd(host->card)) {
 			host->pm_state |= MMC_HOST_DEFERRED_RESUME |
 					  MMC_HOST_NEEDS_RESUME;
 		}

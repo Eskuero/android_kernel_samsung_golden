@@ -3129,6 +3129,24 @@ static bool read_mailbox_0(void)
 	}
 	writel(MBOX_BIT(0), PRCM_ARM_IT1_CLR);
 	trace_u8500_irq_mailbox_0(header, ev, mask);
+
+	if (r) {
+		unsigned long flags;
+
+		spin_lock_irqsave(&mb0_transfer.lock, flags);
+
+		/* Do not send the ack if MB0 is busy */
+		if (!(readl(PRCM_MBOX_CPU_VAL) & MBOX_BIT(0))) {
+			/* Send ack */
+			writeb(MB0H_READ_WAKEUP_ACK, (tcdm_base + PRCM_MBOX_HEADER_REQ_MB0));
+			log_this(30, NULL, 0, NULL, 0);
+			writel(MBOX_BIT(0), PRCM_MBOX_CPU_SET);
+			r = false;
+		}
+		
+		spin_unlock_irqrestore(&mb0_transfer.lock, flags);
+	}
+
 	return r;
 }
 

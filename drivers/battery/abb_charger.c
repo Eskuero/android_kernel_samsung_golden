@@ -1084,18 +1084,19 @@ static void ab8500_chg_check_hw_failure_delay_work(struct work_struct *work)
 		      struct ab8500_charger_info, check_hw_failure_work.work);
 
 	/* TODO : should be removed after PVR */
-	panic("ab850x charger bug");
+	/* panic("ab850x charger bug"); */
+	dev_info(di->dev, "%s, ab850x charger bug\n", __func__);
 
-	if (di->cable_type != POWER_SUPPLY_TYPE_BATTERY) {
-		di->flags.irq_flag &= ~F_CHG_WD_EXP;
-		di->flags.irq_flag &= ~F_MAIN_THERMAL_PROT;
-		di->flags.irq_flag &= ~F_USB_THERMAL_PROT;
-		di->flags.irq_flag_shadow &= ~F_CHG_WD_EXP;
-		di->flags.irq_flag_shadow &= ~F_MAIN_THERMAL_PROT;
-		di->flags.irq_flag_shadow &= ~F_USB_THERMAL_PROT;
+	/* if (di->cable_type != POWER_SUPPLY_TYPE_BATTERY) { */
+	/*	di->flags.irq_flag &= ~F_CHG_WD_EXP; */
+	/* 	di->flags.irq_flag &= ~F_MAIN_THERMAL_PROT; */
+	/* 	di->flags.irq_flag &= ~F_USB_THERMAL_PROT; */
+	/* 	di->flags.irq_flag_shadow &= ~F_CHG_WD_EXP; */
+	/* 	di->flags.irq_flag_shadow &= ~F_MAIN_THERMAL_PROT; */
+	/* 	di->flags.irq_flag_shadow &= ~F_USB_THERMAL_PROT; */
 
-		ab8500_chg_set_charge(di, true);
-	}
+	/* 	ab8500_chg_set_charge(di, true); */
+	/* } */
 }
 
 /**

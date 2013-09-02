@@ -24,6 +24,8 @@
 #ifdef CONFIG_HAS_EARLYSUSPEND
 #include <linux/earlysuspend.h>
 #endif
+#include <linux/sensors_core.h>
+
 
 #define I2C_RETRY_DELAY  5
 #define I2C_RETRIES      5
@@ -80,8 +82,6 @@ static atomic_t flgEna;
 static atomic_t delay;
 static atomic_t flgSuspend;
 
-extern int sensors_register(struct device *dev, void * drvdata,
-		struct device_attribute *attributes[], char *name);
 
 static int hscd_i2c_readm(char *rxData, int length)
 {
@@ -211,6 +211,8 @@ int hscd_self_test_A(void)
 	if (atomic_read(&flgSuspend) == 1)
 		return -1;
 
+	alps_info("is called\n", __func__);
+
 	/* Control resister1 backup */
 	cr1[0] = HSCD_CTRL1;
 	if (hscd_i2c_readm(cr1, 1))
@@ -291,6 +293,7 @@ int hscd_self_test_A(void)
 int hscd_self_test_B(void)
 {
     if (atomic_read(&flgSuspend) == 1) return -1;
+	alps_info("is called\n", __func__);
     return 0;
 }
 
@@ -328,6 +331,12 @@ void hscd_activate(int flgatm, int flg, int dtime)
 
 	if (this_client == NULL)
 		return;
+	else if ((atomic_read(&delay) == dtime)
+				&& (atomic_read(&flgEna) == flg)
+				&& (flgatm == 1))
+		return;
+
+	alps_info("is called\n", __func__);
 
 	if (flg != 0)	flg = 1;
 
@@ -335,8 +344,8 @@ void hscd_activate(int flgatm, int flg, int dtime)
 		buf[0] = HSCD_CTRL4;	/* 15 bit signed value */
 		buf[1] = 0x90;
 		hscd_i2c_writem(buf, 2);
+		mdelay(1);
 	}
-	mdelay(1);
 
 	if (dtime <=  20)
 		buf[1] = (3<<3);	/* 100Hz- 10msec */
@@ -349,7 +358,7 @@ void hscd_activate(int flgatm, int flg, int dtime)
 	buf[1] |= (flg<<7);
 
 	hscd_i2c_writem(buf, 2);
-	mdelay(3);
+	mdelay(1);
 
 	if (flgatm) {
 		atomic_set(&flgEna, flg);
@@ -357,9 +366,8 @@ void hscd_activate(int flgatm, int flg, int dtime)
 	}
 }
 
-static void hscd_register_init(void)
+void hscd_register_init(void)
 {
-	int v[3];
 	u8  buf[2];
 
 	alps_info("is called\n", __func__);
@@ -369,7 +377,7 @@ static void hscd_register_init(void)
 	hscd_i2c_writem(buf, 2);
 
 	mdelay(5);
-
+/*
 	atomic_set(&delay, 100);
 	hscd_activate(0, 1, atomic_read(&delay));
 	hscd_get_magnetic_field_data(v);
@@ -377,6 +385,7 @@ static void hscd_register_init(void)
 	alps_dbgmsg("x = %d, y = %d, z = %d\n", v[0], v[1], v[2]);
 
 	hscd_activate(0, 0, atomic_read(&delay));
+*/
 }
 
 static ssize_t selftest_show(struct device *dev,
@@ -405,7 +414,7 @@ static ssize_t selftest_show(struct device *dev,
 	else
 		result2 = 0;
 
-	alps_dbgmsg("Selftest result is %d, %d\n", result1, result2);
+	alps_info("%s: result, A = %d, B = %d\n", result1, result2);
 
 	return snprintf(buf, PAGE_SIZE, "%d, %d\n", result1, result2);
 }

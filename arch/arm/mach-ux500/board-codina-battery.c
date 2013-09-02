@@ -30,7 +30,7 @@ extern int use_ab8505_iddet;
 bool vbus_state;
 EXPORT_SYMBOL(vbus_state);
 
-static void abb_jig_charging(void)
+static int abb_jig_charging(void)
 {
 	union power_supply_propval value;
 	int i, ret = 0;
@@ -50,7 +50,7 @@ static void abb_jig_charging(void)
 			__func__);
 		value.intval = POWER_SUPPLY_TYPE_BATTERY;
 	} else
-		return;
+		return 0;
 
 	for (i = 0; i < 10; i++) {
 		psy = power_supply_get_by_name("battery");
@@ -60,7 +60,7 @@ static void abb_jig_charging(void)
 
 	if (i == 10) {
 		pr_err("%s: fail to get battery ps\n", __func__);
-		return;
+		return 0;
 	}
 
 	ret = psy->set_property(psy, POWER_SUPPLY_PROP_ONLINE,
@@ -69,10 +69,10 @@ static void abb_jig_charging(void)
 		pr_err("%s: fail to set power_suppy ONLINE property(%d)\n",
 		       __func__, ret);
 	}
-
+	return 1;
 }
 
-static void abb_dock_charging(void)
+static int abb_dock_charging(void)
 {
 	union power_supply_propval value;
 	int i, ret = 0;
@@ -92,7 +92,7 @@ static void abb_dock_charging(void)
 			__func__);
 		value.intval = POWER_SUPPLY_TYPE_BATTERY;
 	} else
-		return;
+		return 0;
 
 	for (i = 0; i < 10; i++) {
 		psy = power_supply_get_by_name("battery");
@@ -102,7 +102,7 @@ static void abb_dock_charging(void)
 
 	if (i == 10) {
 		pr_err("%s: fail to get battery ps\n", __func__);
-		return;
+		return 0;
 	}
 
 	ret = psy->set_property(psy, POWER_SUPPLY_PROP_ONLINE,
@@ -111,14 +111,17 @@ static void abb_dock_charging(void)
 		pr_err("%s: fail to set power_suppy ONLINE property(%d)\n",
 			__func__, ret);
 	}
-
+	return 1;
 }
 
 static void abb_vbus_is_detected(bool state)
 {
 	vbus_state = state;
-	abb_jig_charging();
-	abb_dock_charging();
+	if ((abb_jig_charging() | abb_dock_charging()) || state)
+		return;
+
+	/* VBUS falling but not handled */
+	abb_battery_cb();
 }
 
 static bool sec_bat_adc_none_init(

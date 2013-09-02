@@ -146,6 +146,8 @@ void ab8500_restart(u16 reset_code)
 		RTC_CTRL , &val);
 	abx500_set_register_interruptible(sysctrl_dev, AB8500_RTC,
 		RTC_CTRL , (val & ~RTC_ALARM_ENABLE));
+	abx500_set_register_interruptible(sysctrl_dev, AB8500_RTC,
+		0x12 , 0);
 
 	/*
 	 * Android is not using the RTC alarm registers during reboot
