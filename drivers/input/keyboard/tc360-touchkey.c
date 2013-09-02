@@ -178,7 +178,7 @@ static irqreturn_t tc360_interrupt(int irq, void *dev_id)
 
 	case 1 ... 2:
 		press = !(key_val & TC360_KEY_PRESS_MASK);
-
+/*
 		if (*data->touchscreen_is_pressed > 0 && press) {
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 			dev_info(&client->dev, "key[%3d] is pressed,"
@@ -192,7 +192,7 @@ static irqreturn_t tc360_interrupt(int irq, void *dev_id)
 #endif
 			goto out;
 		}
-
+*/
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 		dev_info(&client->dev, "key[%3d] is %s\n",
 			data->keycodes[key_index - 1],

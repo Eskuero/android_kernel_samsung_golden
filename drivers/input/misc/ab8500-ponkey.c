@@ -56,9 +56,6 @@ struct ab8500_ponkey_info {
 	int			irq_dbf;
 	int			irq_dbr;
 	bool		key_state;
-	bool		pcut_wa;
-	struct delayed_work	pcut_work;
-	u8			pcut_ctrl;
 };
 
 #ifndef CONFIG_SAMSUNG_PRODUCT_SHIP
@@ -126,28 +123,12 @@ static struct attribute_group sec_power_key_attr_group = {
 	.attrs = sec_power_key_attrs,
 };
 
-#define PCUT_CTR_AND_STATUS 0x12
-
-static void pcut_disable(struct work_struct *work)
-{
-	struct delayed_work *dwork = to_delayed_work(work);
-	struct ab8500_ponkey_info *info = container_of(dwork,
-				struct ab8500_ponkey_info, pcut_work);
-	struct device *dev = info->idev->dev.parent;
-
-	abx500_get(dev, AB8500_RTC, PCUT_CTR_AND_STATUS, &info->pcut_ctrl);
-	abx500_set(dev, AB8500_RTC, PCUT_CTR_AND_STATUS, 0);
-}
-
 /* AB8500 gives us an interrupt when ONKEY is held */
 static irqreturn_t ab8500_ponkey_handler(int irq, void *data)
 {
 	struct ab8500_ponkey_info *info = data;
 
 	if (irq == info->irq_dbf) {
-		if (info->pcut_wa)
-			schedule_delayed_work(&info->pcut_work, HZ * 3);
-
 #ifndef CONFIG_SAMSUNG_PRODUCT_SHIP
 		if (gpio_keys_getstate(KEY_VOLUMEUP) && jack_is_detected)
 			gpio_keys_start_upload_modtimer();
@@ -159,17 +140,12 @@ static irqreturn_t ab8500_ponkey_handler(int irq, void *data)
 		dev_info(info->idev->dev.parent, "Power KEY pressed %d\n", KEY_POWER);
 #endif
 	} else if (irq == info->irq_dbr) {
-		if (info->pcut_wa && !cancel_delayed_work_sync(&info->pcut_work))
-			abx500_set(info->idev->dev.parent, AB8500_RTC,
-				   PCUT_CTR_AND_STATUS, info->pcut_ctrl);
-
 		gpio_keys_setstate(KEY_POWER, false);
 		info->key_state = false;
 		input_report_key(info->idev, KEY_POWER, false);
 #if !defined(CONFIG_SAMSUNG_PRODUCT_SHIP)
 		dev_info(info->idev->dev.parent, "Power KEY released %d\n", KEY_POWER);
 #endif
-
 	}
 
 	input_sync(info->idev);
@@ -179,7 +155,6 @@ static irqreturn_t ab8500_ponkey_handler(int irq, void *data)
 
 static int __devinit ab8500_ponkey_probe(struct platform_device *pdev)
 {
-	struct ab8500 *ab8500 = dev_get_drvdata(pdev->dev.parent);
 	const struct ab8500_ponkey_variant *variant;
 	struct ab8500_ponkey_info *info;
 	int irq_dbf, irq_dbr, ret;
@@ -212,12 +187,6 @@ static int __devinit ab8500_ponkey_probe(struct platform_device *pdev)
 	info = kzalloc(sizeof(struct ab8500_ponkey_info), GFP_KERNEL);
 	if (!info)
 		return -ENOMEM;
-
-	if ((is_ab8505(ab8500) || is_ab9540(ab8500))
-	     && abx500_get_chip_id(&pdev->dev) >= AB8500_CUT2P0)
-		info->pcut_wa = true;
-
-	INIT_DELAYED_WORK(&info->pcut_work, pcut_disable);
 
 	info->irq_dbf = irq_dbf;
 	info->irq_dbr = irq_dbr;

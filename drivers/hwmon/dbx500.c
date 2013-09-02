@@ -1,4 +1,3 @@
-
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/platform_device.h>

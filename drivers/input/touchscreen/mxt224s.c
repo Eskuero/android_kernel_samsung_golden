@@ -49,7 +49,6 @@
 #include <linux/module.h>
 #include <linux/slab.h>
 #include <linux/string.h>
-#include <linux/timer.h>
 #ifdef CONFIG_USB_SWITCHER
 #include <linux/usb_switcher.h>
 #include <linux/input/ab8505_micro_usb_iddet.h>
@@ -341,8 +340,6 @@ struct mxt_data {
 #ifdef CONFIG_USB_SWITCHER
 	struct notifier_block		nb;
 #endif
-	struct timer_list		ta_status_timer;
-
 	u8				max_report_id;
 	u8				finger_report_id;
 	u16				msg_proc;
@@ -815,6 +812,7 @@ static int mxt_multi_touchscreen_msg_handler(struct mxt_data *data,
 			prcmu_qos_update_requirement(PRCMU_QOS_ARM_KHZ,
 				(char *)client->name,
 				PRCMU_QOS_DEFAULT_VALUE);
+		dev_info(&client->dev, "unlock\n");
 		}
 #endif
 
@@ -860,6 +858,7 @@ static int mxt_multi_touchscreen_msg_handler(struct mxt_data *data,
 					PRCMU_QOS_DDR_OPP_MAX);
 				prcmu_qos_update_requirement(PRCMU_QOS_ARM_KHZ,
 					(char *)client->name, 800000);
+			dev_info(&client->dev, "lock\n");
 			}
 #endif
 
@@ -3792,19 +3791,6 @@ err_create_mem_access:
 	return (ret < 0) ? ret : -ret;
 }
 
-static void mxt_check_default_ta_status(unsigned long __data)
-{
-	struct mxt_data *data = (struct mxt_data *)__data;
-
-
-	dev_err(&data->client->dev, "initial_cable_status=0x%x\n",
-		*data->pdata->initial_cable_status);
-	if (*data->pdata->initial_cable_status != 0) {
-		data->dev_mode = TA_MODE;
-		schedule_delayed_work(&data->wq, msecs_to_jiffies(100));
-	}
-}
-
 static int __devinit mxt_probe(struct i2c_client *client,
 				const struct i2c_device_id *id)
 {
@@ -3982,12 +3968,6 @@ static int __devinit mxt_probe(struct i2c_client *client,
 		dev_err(&client->dev, "fail to init interface (%d)\n", ret);
 		goto err_init_interface;
 	}
-
-        init_timer(&(data->ta_status_timer));
-        data->ta_status_timer.expires = get_jiffies_64() + msecs_to_jiffies(5 * MSEC_PER_SEC);
-        data->ta_status_timer.data = (unsigned long) data;
-        data->ta_status_timer.function = mxt_check_default_ta_status;
-        add_timer(&(data->ta_status_timer));
 
 	dev_info(&client->dev, "successfully probed.\n");
 

@@ -123,7 +123,6 @@ struct mxt_platform_data {
 	u8 boot_address;
 	u8 *touchscreen_is_pressed;
 	const char *firmware_name;
-	u8 *initial_cable_status;
 };
 
 #define SEC_FAC_TSP

@@ -1,0 +1,9 @@
+#
+#
+#
+
+menu "Samsung Kernel Modules"
+
+source "drivers/samsung/startup_reason/Kconfig"
+
+endmenu

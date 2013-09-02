@@ -534,7 +534,7 @@ struct ab8500_bm_data ab8500_bm_data = {
 #endif
 	.main_safety_tmr_h	= 4,
 	.usb_safety_tmr_h	= 4,
-	.bkup_bat_v		= BUP_VCH_SEL_2P5V,
+	.bkup_bat_v		= BUP_VCH_SEL_3P1V,
 	.bkup_bat_i		= BUP_ICH_SEL_50UA,
 	.no_maintenance		= true,
 #ifdef CONFIG_AB8500_BATTERY_THERM_ON_BATCTRL

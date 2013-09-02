@@ -30,7 +30,7 @@ extern int use_ab8505_iddet;
 bool vbus_state;
 EXPORT_SYMBOL(vbus_state);
 
-static int abb_jig_charging(void)
+static void abb_jig_charging(void)
 {
 	union power_supply_propval value;
 	int i, ret = 0;
@@ -50,7 +50,7 @@ static int abb_jig_charging(void)
 			__func__);
 		value.intval = POWER_SUPPLY_TYPE_BATTERY;
 	} else
-		return 0;
+		return;
 
 	for (i = 0; i < 10; i++) {
 		psy = power_supply_get_by_name("battery");
@@ -60,7 +60,7 @@ static int abb_jig_charging(void)
 
 	if (i == 10) {
 		pr_err("%s: fail to get battery ps\n", __func__);
-		return 0;
+		return;
 	}
 
 	ret = psy->set_property(psy, POWER_SUPPLY_PROP_ONLINE,
@@ -69,10 +69,10 @@ static int abb_jig_charging(void)
 		pr_err("%s: fail to set power_suppy ONLINE property(%d)\n",
 		       __func__, ret);
 	}
-	return 1;
+
 }
 
-static int abb_dock_charging(void)
+static void abb_dock_charging(void)
 {
 	union power_supply_propval value;
 	int i, ret = 0;
@@ -92,7 +92,7 @@ static int abb_dock_charging(void)
 			__func__);
 		value.intval = POWER_SUPPLY_TYPE_BATTERY;
 	} else
-		return 0;
+		return;
 
 	for (i = 0; i < 10; i++) {
 		psy = power_supply_get_by_name("battery");
@@ -102,7 +102,7 @@ static int abb_dock_charging(void)
 
 	if (i == 10) {
 		pr_err("%s: fail to get battery ps\n", __func__);
-		return 0;
+		return;
 	}
 
 	ret = psy->set_property(psy, POWER_SUPPLY_PROP_ONLINE,
@@ -111,17 +111,14 @@ static int abb_dock_charging(void)
 		pr_err("%s: fail to set power_suppy ONLINE property(%d)\n",
 			__func__, ret);
 	}
-	return 1;
+
 }
 
 static void abb_vbus_is_detected(bool state)
 {
 	vbus_state = state;
-	if ((abb_jig_charging() | abb_dock_charging()) || state)
-		return;
-
-	/* VBUS falling but not handled */
-	abb_battery_cb();
+	abb_jig_charging();
+	abb_dock_charging();
 }
 
 static bool sec_bat_adc_none_init(
@@ -377,45 +374,56 @@ static struct v_to_cap cap_tbl_5ma[] = {
 
 /* Battery voltage to Resistance table*/
 static struct v_to_res res_tbl[] = {
-	{4240, 160},
-	{4210, 179},
-	{4180, 183},
-	{4160, 184},
-	{4140, 191},
-	{4120, 204},
-	{4076, 220},
-	{4030, 227},
-	{3986, 215},
-	{3916, 221},
-	{3842, 259},
-	{3773, 287},
-	{3742, 283},
-	{3709, 277},
-	{3685, 297},
-	{3646, 310},
-	{3616, 331},
-	{3602, 370},
-	{3578, 350},
-	{3553, 321},
-	{3503, 322},
-	{3400, 269},
-	{3360, 328},
-	{3330, 305},
-	{3300, 339},
+	{4240,	160},
+	{4210,	179},
+	{4180,	183},
+	{4160,	184},
+	{4140,	191},
+	{4120,	204},
+	{4080,	200},
+	{4027,	202},
+	{3916,	221},
+	{3842,	259},
+	{3800,	262},
+	{3742,	263},
+	{3709,	277},
+	{3685,	312},
+	{3668,	258},
+	{3660,	247},
+	{3636,	293},
+	{3616,	331},
+	{3600,	349},
+	{3593,	345},
+	{3585,	344},
+	{3572,	336},
+	{3553,	321},
+	{3517,	336},
+	{3503,	322},
+	{3400,	269},
+	{3360,	328},
+	{3330,	305},
+	{3300,	339},
 };
 
 static struct v_to_res chg_res_tbl[] = {
 	{4302, 230},
-	{4276, 345},
-	{4227, 345},
-	{4171, 346},
-	{4134, 311},
-	{4084, 299},
-	{4052, 316},
-	{4012, 309},
-	{3961, 303},
-	{3939, 280},
-	{3904, 261},
+	{4276, 375},
+	{4227, 375},
+	{4171, 376},
+	{4134, 341},
+	{4084, 329},
+	{4049, 361},
+	{4012, 349},
+	{3980, 322},
+	{3960, 301},
+	{3945, 283},
+	{3939, 345},
+	{3924, 304},
+	{3915, 298},
+	{3911, 317},
+	{3905, 326},
+	{3887, 352},
+	{3861, 327},
 	{3850, 212},
 	{3800, 232},
 	{3750, 177},
@@ -441,7 +449,7 @@ static const struct fg_parameters fg = {
 	.maint_thres = 97,
 #ifdef CONFIG_AB8505_SMPL
 	.pcut_enable = 1,
-	.pcut_max_time = 20,		/* 10 * 15.625ms */
+	.pcut_max_time = 10,		/* 10 * 15.625ms */
 	.pcut_max_restart = 15,		/* Unlimited */
 	.pcut_debounce_time = 2,	/* 15.625 ms */
 #endif
@@ -481,7 +489,7 @@ static struct battery_data_t abb_battery_data[] = {
 		/* For AB850x */
 		.autopower_cfg = true,
 		.enable_overshoot = false,
-		.bkup_bat_v = BUP_VCH_SEL_2P5V,
+		.bkup_bat_v = BUP_VCH_SEL_3P1V,
 		.bkup_bat_i = BUP_ICH_SEL_50UA,
 
 		.fg_res_chg = 125,
@@ -579,7 +587,7 @@ sec_battery_platform_data_t sec_battery_pdata = {
 
 	/* Battery check */
 	.battery_check_type = SEC_BATTERY_CHECK_CHARGER,
-	.check_count = 1,
+	.check_count = 0,
 	/* Battery check by ADC */
 	.check_adc_max = 0,
 	.check_adc_min = 0,

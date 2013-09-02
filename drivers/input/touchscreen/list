@@ -1,0 +1,70 @@
+ISSP/issp_directives.h:// filename: ISSP_Directives.h
+ISSP/issp_directives.h:#ifndef INC_ISSP_DIRECTIVES
+ISSP/issp_directives.h:#define INC_ISSP_DIRECTIVES
+ISSP/issp_directives.h:#endif  //(INC_ISSP_DIRECTIVES)
+ISSP/issp_directives.h://end of file ISSP_Directives.h
+ISSP/issp_delays.h:// filename: ISSP_Delays.h
+ISSP/issp_delays.h:#ifndef INC_ISSP_DELAYS
+ISSP/issp_delays.h:#define INC_ISSP_DELAYS
+ISSP/issp_delays.h:// The Delay() routine, in ISSP_Driver_Routines.c, has a delay of n+3 usec,
+ISSP/issp_delays.h:// DELAY_100us delays 100 usec. This is used in fXRESInitializeTargetForISSP to
+ISSP/issp_delays.h:#endif //(INC_ISSP_DELAYS)
+ISSP/issp_delays.h://end of file ISSP_Delays.h
+ISSP/issp_errors.h:// filename: ISSP_Errors.h
+ISSP/issp_errors.h:#ifndef INC_ISSP_ERRORS
+ISSP/issp_errors.h:#define INC_ISSP_ERRORS
+ISSP/issp_errors.h:// The following are defines for error messages from the ISSP program.
+ISSP/issp_errors.h:// target part does not match the device type that the ISSP program is
+ISSP/issp_errors.h:#endif  //(INC_ISSP_ERRORS)
+ISSP/issp_errors.h://end of file ISSP_Errors.h
+ISSP/TouchUpdater.c:	// >>>> ISSP Programming Starts Here <<<<
+ISSP/TouchUpdater.c:	// >>>> ISSP Programming Starts Here <<<<
+ISSP/TouchUpdater.c:	// Initialize the Host & Target for ISSP operations
+ISSP/TouchUpdater.c:	fIsError = fPowerCycleInitializeTargetForISSP();
+ISSP/issp_extern.h:// filename: ISSP_Extern.h
+ISSP/issp_extern.h:#ifndef INC_ISSP_EXTERN
+ISSP/issp_extern.h:#define INC_ISSP_EXTERN
+ISSP/issp_extern.h:extern signed char fXRESInitializeTargetForISSP(void);
+ISSP/issp_extern.h:extern signed char fPowerCycleInitializeTargetForISSP(void);
+ISSP/issp_extern.h:#endif  //(INC_ISSP_EXTERN)
+ISSP/issp_extern.h://end of file ISSP_Extern.h
+ISSP/issp_defs.h:// filename: ISSP_Defs.h
+ISSP/issp_defs.h:#ifndef INC_ISSP_DEFS
+ISSP/issp_defs.h:#define INC_ISSP_DEFS
+ISSP/issp_defs.h:#endif //(INC_ISSP_DEFS)
+ISSP/issp_defs.h://end of file ISSP_Defs.h
+ISSP/issp_routines.c:// filename: ISSP_Routines.c
+ISSP/issp_routines.c:/* ((((((((((((((((((((( LOW-LEVEL ISSP SUBROUTINE SECTION ))))))))))))))))))))
+ISSP/issp_routines.c:   (( ISSP_Drive_Routines.c. The functions in that file interface to the     ))
+ISSP/issp_routines.c:   (( the routines in ISSP_Drive_Routines.c are correctly converted.         ))
+ISSP/issp_routines.c:// in ISSP_Vectors.h.  The data line is returned to HiZ after the vector is
+ISSP/issp_routines.c:/* ((((((((((((((((((((( HIGH-LEVEL ISSP ROUTINE SECTION ))))))))))))))))))))))
+ISSP/issp_routines.c:// fXRESInitializeTargetForISSP()
+ISSP/issp_routines.c:signed char fXRESInitializeTargetForISSP(void)
+ISSP/issp_routines.c:	//  and cause the target device to exit ISSP Mode.
+ISSP/issp_routines.c:// fPowerCycleInitializeTargetForISSP()
+ISSP/issp_routines.c:signed char fPowerCycleInitializeTargetForISSP(void)
+ISSP/issp_routines.c:	//  and cause the target device to exit ISSP Mode.
+ISSP/issp_routines.c:// end of file ISSP_Routines.c
+ISSP/issp_revision.h:// filename: ISSP_Revision.h
+ISSP/issp_revision.h:#ifndef INC_ISSP_REVISION
+ISSP/issp_revision.h:#define INC_ISSP_REVISION
+ISSP/issp_revision.h:#endif //(INC_ISSP_REVISION)
+ISSP/issp_revision.h://end of file ISSP_Revision.h
+ISSP/issp_driver_routines.c:// filename: ISSP_Driver_Routines.c
+ISSP/issp_driver_routines.c:// ((((((((((((((((((((((( DEMO ISSP SUBROUTINE SECTION )))))))))))))))))))))))
+ISSP/issp_driver_routines.c:// ((((( Demo Routines can be deleted in final ISSP project if not used   )))))
+ISSP/issp_driver_routines.c:// ********************* LOW-LEVEL ISSP SUBROUTINE SECTION ********************
+ISSP/issp_driver_routines.c:// ISSP_Delays.h file.
+ISSP/issp_driver_routines.c:// ********************* LOW-LEVEL ISSP SUBROUTINE SECTION ********************
+ISSP/issp_driver_routines.c:// ********************* LOW-LEVEL ISSP SUBROUTINE SECTION ********************
+ISSP/issp_driver_routines.c://end of file ISSP_Drive_Routines.c
+ISSP/issp_vectors.h:// filename: ISSP_Vectors.h
+ISSP/issp_vectors.h:#ifndef INC_ISSP_VECTORS
+ISSP/issp_vectors.h:#define INC_ISSP_VECTORS
+ISSP/issp_vectors.h:#endif  //(INC_ISSP_VECTORS)
+ISSP/issp_vectors.h://end of file ISSP_Vectors.h
+ISSP/TouchIoctl.h:#define CMD_ISSP_SET				22
+ISSP/TouchIoctl.h:#define CMD_ISSP_CLR				23
+ISSP/TouchIoctl.h:#define DEV_CTRL_TOUCH_SET_FLAG		_IO(DEV_IOCTL_TS_MAGIC, CMD_ISSP_SET) 
+ISSP/TouchIoctl.h:#define DEV_CTRL_TOUCH_CLR_FLAG		_IO(DEV_IOCTL_TS_MAGIC, CMD_ISSP_CLR) 

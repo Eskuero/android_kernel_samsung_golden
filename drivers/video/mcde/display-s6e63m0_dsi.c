@@ -455,7 +455,6 @@ static int s6e63m0_set_acl(struct s6e63m0_dsi_lcd *lcd)
 	struct mcde_display_device *ddev = lcd->ddev;
 
 	if (lcd->acl_enable) {
-		#if 0
 		if (lcd->cur_acl == 0) {
 			if (lcd->bl == 0 || lcd->bl == 1 || lcd->bl == 2) {
 				s6e63m0_write_dcs_vid_seq(ddev, SEQ_ACL_OFF_DSI);
@@ -465,12 +464,11 @@ static int s6e63m0_set_acl(struct s6e63m0_dsi_lcd *lcd)
 				dev_dbg(lcd->dev, "cur_acl=%d, acl_on ..lcd->bl [%d]\n",lcd->cur_acl,lcd->bl);
 			}
 		}
-		#endif		
 		dev_dbg(lcd->dev,"current lcd-> bl [%d]\n",lcd->bl);
 		switch (lcd->bl) {
 		case 0 ... 2: /* 30cd ~ 60cd */
 			if (lcd->cur_acl != 0) {
-				ret = s6e63m0_write_dcs_vid_seq(ddev, SEQ_ACL_NULL_DSI);
+				ret = s6e63m0_write_dcs_vid_seq(ddev, SEQ_ACL_OFF_DSI);
 				dev_dbg(lcd->dev, "ACL_cutoff_set Percentage : off!!\n");
 				lcd->cur_acl = 0;
 			}
@@ -493,7 +491,7 @@ static int s6e63m0_set_acl(struct s6e63m0_dsi_lcd *lcd)
 			break;
 		}
 	} else {
-			ret = s6e63m0_write_dcs_vid_seq(ddev, SEQ_ACL_NULL_DSI);
+			ret = s6e63m0_write_dcs_vid_seq(ddev, SEQ_ACL_OFF_DSI);
 			lcd->cur_acl = 0;
 			dev_dbg(lcd->dev, "ACL_cutoff_set Percentage : off!!\n");
 	}
@@ -592,20 +590,16 @@ static int s6e63m0_dsi_set_brightness(struct backlight_device *bd)
 
 	struct s6e63m0_dsi_lcd *lcd = bl_get_data(bd);
 
-	/*Protection code for  power on /off test */
-	if(lcd->ddev <= 0)
-		return ret;
-
 	if ((brightness < 0) ||	(brightness > bd->props.max_brightness)) {
 		dev_err(&bd->dev, "lcd brightness should be 0 to %d.\n",
 			bd->props.max_brightness);
 		return -EINVAL;
 	}
 
+	mutex_lock(&lcd->lock);
 
 	if (lcd->ddev->power_mode != MCDE_DISPLAY_PM_OFF) {
 
-		mutex_lock(&lcd->lock);
 		if ((brightness == 0) && (lcd->current_brightness != 0)) {
 			ret = s6e63m0_dsi_display_sleep(lcd);
 		}
@@ -621,11 +615,11 @@ static int s6e63m0_dsi_set_brightness(struct backlight_device *bd)
 			dev_info(&bd->dev, "lcd brightness setting failed.\n");
 			ret = 0;
 		}
-		mutex_unlock(&lcd->lock);		
 	}
 
 	lcd->current_brightness = brightness;
 
+	mutex_unlock(&lcd->lock);
 
 	return ret;
 }
@@ -692,7 +686,6 @@ static int s6e63m0_dsi_display_init(struct s6e63m0_dsi_lcd *lcd)
 
 	mcde_formatter_enable(ddev->chnl_state);	/* ensure MCDE enabled */
 	ret |= s6e63m0_write_dcs_vid_seq(ddev, DCS_CMD_SEQ_L2_MTP_KEY_ENABLE);
-	ret |= s6e63m0_write_dcs_vid_seq(ddev, SEQ_ACL_ON_DSI);	
 	ret |= s6e63m0_dsi_read_panel_id(lcd);
 	ret |= s6e63m0_write_dcs_vid_seq(ddev, DCS_CMD_SEQ_PANEL_COND_SET);
 	ret |= s6e63m0_write_dcs_vid_seq(ddev, DCS_CMD_SEQ_DISPLAY_COND_SET);
@@ -700,7 +693,6 @@ static int s6e63m0_dsi_display_init(struct s6e63m0_dsi_lcd *lcd)
 
 	ret |= s6e63m0_dsi_update_brightness(ddev, lcd->bd->props.brightness);
 	ret |= s6e63m0_write_dcs_vid_seq(ddev, DCS_CMD_SEQ_ELVSS_ON);
-
 	return 0;/*For PBA test on assembly line*/
 }
 
@@ -1443,11 +1435,6 @@ device_attribute *attr, const char *buf, size_t size)
 	struct s6e63m0_dsi_lcd *lcd = dev_get_drvdata(dev);
 	int value;
 	int rc;
-	
-	/*Protection code for  power on /off test */
-	if(lcd->ddev <= 0)
-		return size;
-	
 	rc = strict_strtoul(buf, (unsigned int) 0, (unsigned long *)&value);
 	if (rc < 0)
 		return rc;

@@ -2875,16 +2875,16 @@ fail:
 }
 
 static struct device_attribute ab8505_fg_attrs_ab8505[] = {
-	__ATTR(powercut_maxtime, (S_IRUGO | S_IWUSR),
+	__ATTR(powercut_maxtime, (S_IRUGO | S_IWUGO),
 	       ab8505_powercut_maxtime_read, ab8505_powercut_maxtime_write),
-	__ATTR(powercut_restart_max, (S_IRUGO | S_IWUSR),
+	__ATTR(powercut_restart_max, (S_IRUGO | S_IWUGO),
 	       ab8505_powercut_restart_read, ab8505_powercut_restart_write),
 	__ATTR(powercut_timer, S_IRUGO, ab8505_powercut_timer_read, NULL),
 	__ATTR(powercut_restart_counter, S_IRUGO,
 	       ab8505_powercut_restart_counter_read, NULL),
-	__ATTR(powercut_enable, (S_IRUGO | S_IWUSR),
+	__ATTR(powercut_enable, (S_IRUGO | S_IWUGO),
 	       ab8505_powercut_read, ab8505_powercut_write),
-	__ATTR(powercut_debounce_time, (S_IRUGO | S_IWUSR),
+	__ATTR(powercut_debounce_time, (S_IRUGO | S_IWUGO),
 	       ab8505_powercut_debounce_read, ab8505_powercut_debounce_write),
 	__ATTR(powercut_enable_status, S_IRUGO,
 	       ab8505_powercut_enable_status_read, NULL),
