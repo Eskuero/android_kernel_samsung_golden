@@ -366,7 +366,6 @@ uint dhd_download_fw_on_driverload = TRUE;
  * example nvram_path[MOD_PARAM_PATHLEN]="/projects/wlan/nvram.txt"
  */
 
-/* TODO: Remove hack, we must to be allowed to set parameters for module from BoardConfig define */
 char firmware_path[MOD_PARAM_PATHLEN]="/system/etc/wifi/bcmdhd_sta.bin";
 char nvram_path[MOD_PARAM_PATHLEN]="/system/etc/wifi/nvram_net.txt";
 
@@ -3344,11 +3343,11 @@ dhd_bus_start(dhd_pub_t *dhdp)
 
 	/* try to download image and nvram to the dongle */
 	if  ((dhd->pub.busstate == DHD_BUS_DOWN) &&
-		(firmware_path != NULL) && (firmware_path[0] != '\0') &&
-		(nvram_path != NULL) && (nvram_path[0] != '\0')) {
+		(fw_path != NULL) && (fw_path[0] != '\0') &&
+		(nv_path != NULL) && (nv_path[0] != '\0')) {
 		/* wake lock moved to dhdsdio_download_firmware */
 		if (!(dhd_bus_download_firmware(dhd->pub.bus, dhd->pub.osh,
-		                                firmware_path, nvram_path))) {
+		                                fw_path, nv_path))) {
 			DHD_ERROR(("%s: dhdsdio_probe_download failed. firmware or nvram path is wrong\n",
 			           __FUNCTION__));
 #ifdef DHDTHREAD
